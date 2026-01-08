@@ -311,17 +311,15 @@
         }, 5500);
 
         function preloadResources() {
-            // 添加仓库名前缀到路径
-            const basePath = '/shashabobo.github.io/';
-            
+            // 使用相对路径
             const preloadLinks = document.createElement('link');
             preloadLinks.rel = 'prefetch';
-            preloadLinks.href = basePath + 'qunidedao.html';
+            preloadLinks.href = 'qunidedao.html';
             document.head.appendChild(preloadLinks);
             
             const preloadLinks2 = document.createElement('link');
             preloadLinks2.rel = 'prefetch';
-            preloadLinks2.href = basePath + 'mingyunzhidao.html';
+            preloadLinks2.href = 'mingyunzhidao.html';
             document.head.appendChild(preloadLinks2);
         }
 
@@ -504,18 +502,15 @@
             // 通过添加 active 类来触发模糊渐入
             loadingMask.classList.add('active');
             
-            // 添加仓库名前缀到路径
-            const basePath = '/shashabobo.github.io/';
-            let targetUrl = pageType === 'kandinsky' ? basePath + 'qunidedao.html' : basePath + 'mingyunzhidao.html';
+            // 使用相对路径
+            let targetUrl = pageType === 'kandinsky' ? 'qunidedao.html' : 'mingyunzhidao.html';
             let pageName = pageType === 'kandinsky' ? '「去你的岛」' : '「命运之岛」';
             
             loadingMask.querySelector('p').textContent = `正在进入${pageName}...`;
             
             setTimeout(() => {
-                // 使用完整的 URL 进行测试
-                const fullUrl = window.location.origin + targetUrl;
-                
-                fetch(fullUrl, { method: 'HEAD' })
+                // 尝试相对路径访问
+                fetch(targetUrl, { method: 'HEAD' })
                     .then(response => {
                         if (response.ok) {
                             window.location.href = targetUrl;
