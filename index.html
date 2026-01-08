@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -110,6 +111,19 @@
             50% { opacity: 0.7; }
         }
         .animate-pulse-subtle { animation: pulse-subtle 2s ease-in-out infinite; }
+
+        /* 加载遮罩模糊渐变效果 */
+        #loading-mask {
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), backdrop-filter 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            opacity: 0;
+            backdrop-filter: blur(0px);
+        }
+        #loading-mask.active {
+            pointer-events: auto;
+            opacity: 1;
+            backdrop-filter: blur(16px);
+        }
 
         /* 返回提示样式 */
         .return-handle {
@@ -258,7 +272,8 @@
                 <p class="text-[6px] font-mono tracking-[0.5em] uppercase text-white">Authorized // Status: Active Selection</p>
             </div>
             
-            <div id="loading-mask" class="hidden absolute inset-0 z-50 bg-black/70 backdrop-blur-md flex flex-col items-center justify-center transition-opacity duration-500">
+            <!-- 加载遮罩层：默认透明并关闭交互 -->
+            <div id="loading-mask" class="absolute inset-0 z-50 bg-black/70 flex flex-col items-center justify-center">
                 <div class="w-16 h-16 border-2 border-white/30 border-t-white rounded-full animate-spin mb-4"></div>
                 <p class="text-white/70 text-xs tracking-widest animate-pulse-subtle">加载中...</p>
             </div>
@@ -299,12 +314,12 @@
         function preloadResources() {
             const preloadLinks = document.createElement('link');
             preloadLinks.rel = 'prefetch';
-            preloadLinks.href = 'qunidedao.html'; 
+            preloadLinks.href = './qunidedao.html';  // 使用相对路径
             document.head.appendChild(preloadLinks);
             
             const preloadLinks2 = document.createElement('link');
             preloadLinks2.rel = 'prefetch';
-            preloadLinks2.href = 'mingyunzhidao.html';
+            preloadLinks2.href = './mingyunzhidao.html';  // 使用相对路径
             document.head.appendChild(preloadLinks2);
         }
 
@@ -484,10 +499,11 @@
         setupDragReturn(glassReturn, 'right');
 
         function goToPage(pageType) {
-            loadingMask.classList.remove('hidden');
-            loadingMask.classList.add('flex');
+            // 通过添加 active 类来触发模糊渐入
+            loadingMask.classList.add('active');
             
-            let targetUrl = pageType === 'kandinsky' ? 'qunidedao.html' : 'mingyunzhidao.html';
+            // 使用相对路径
+            let targetUrl = pageType === 'kandinsky' ? './qunidedao.html' : './mingyunzhidao.html';
             let pageName = pageType === 'kandinsky' ? '「去你的岛」' : '「命运之岛」';
             
             loadingMask.querySelector('p').textContent = `正在进入${pageName}...`;
@@ -503,13 +519,15 @@
                             
                             const backBtn = document.createElement('button');
                             backBtn.textContent = '返回选择';
-                            backBtn.className = 'mt-4 px-4 py-2 bg-white text-black text-xs rounded hover:bg-gray-200 transition-colors';
+                            backBtn.className = 'mt-4 px-4 py-2 bg-white text-black text-xs rounded hover:bg-gray-200 transition-colors shadow-lg';
                             backBtn.onclick = function() {
-                                loadingMask.classList.add('hidden');
-                                loadingMask.classList.remove('flex');
-                                loadingMask.style.background = '';
-                                loadingMask.querySelector('p').textContent = '加载中...';
-                                backBtn.remove();
+                                // 移除 active 类以触发渐出动画
+                                loadingMask.classList.remove('active');
+                                setTimeout(() => {
+                                    loadingMask.style.background = '';
+                                    loadingMask.querySelector('p').textContent = '加载中...';
+                                    backBtn.remove();
+                                }, 800); // 等待过渡动画结束
                             };
                             loadingMask.appendChild(backBtn);
                         }
@@ -517,11 +535,10 @@
                     .catch(() => {
                         loadingMask.querySelector('p').textContent = '网络错误';
                         setTimeout(() => {
-                            loadingMask.classList.add('hidden');
-                            loadingMask.classList.remove('flex');
+                            loadingMask.classList.remove('active');
                         }, 3000);
                     });
-            }, 1000); 
+            }, 1000);
         }
     </script>
 </body>
